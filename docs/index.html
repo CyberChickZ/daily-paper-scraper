@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Daily Papers - Research Knowledge Base</title>
+<style>
+:root{--bg:#f5f5f4;--card:#fff;--text:#1a1a1a;--dim:#6b7280;--accent:#ff9d00;--blue:#2563eb;--green:#16a34a;--purple:#7c3aed;--border:#e5e7eb;--tag-bg:#f3f4f6;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.hd{background:#fff;border-bottom:1px solid var(--border);padding:16px 0;position:sticky;top:0;z-index:100}
+.hd-in{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px}
+.logo span{color:var(--accent)}
+.stats{font-size:13px;color:var(--dim)}
+.updated{font-size:12px;color:var(--dim)}
+.fl{max-width:900px;margin:16px auto;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap}
+.fb{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;transition:all .15s;color:var(--dim)}
+.fb:hover{border-color:var(--accent);color:var(--text)}
+.fb.on{background:var(--text);color:#fff;border-color:var(--text)}
+.pl{max-width:900px;margin:0 auto;padding:0 24px 60px}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:12px;transition:all .15s;position:relative}
+.pc:hover{border-color:#d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt{font-size:16px;font-weight:600;color:var(--text);text-decoration:none;line-height:1.4;display:block}
+.pt:hover{color:var(--blue)}
+.pm{margin-top:6px;font-size:13px;color:var(--dim)}
+.tags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.tg{padding:2px 10px;border-radius:12px;font-size:12px;font-weight:500}
+.tl{color:#fff;font-weight:600}
+.tl.bm{background:var(--purple)}.tl.hm{background:var(--blue)}.tl.mp{background:var(--green)}.tl.ot{background:var(--dim)}
+.tk{background:var(--tag-bg);color:var(--dim)}
+.ps{margin-top:12px;font-size:14px;color:var(--text);white-space:pre-line;line-height:1.7}
+.pe{margin-top:8px;font-size:13px;color:var(--purple);font-style:italic}
+.lk{margin-top:10px;display:flex;gap:12px}
+.lk a{font-size:13px;color:var(--blue);text-decoration:none}
+.lk a:hover{text-decoration:underline}
+.star::before{content:"\2B50";position:absolute;top:12px;left:-8px;font-size:14px}
+.fav::after{content:"\2764\FE0F";position:absolute;top:12px;right:12px;font-size:14px}
+.empty{text-align:center;padding:60px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="hd"><div class="hd-in">
+  <div class="logo">📄 <span>Daily Papers</span></div>
+  <div><div class="stats" id="stats"></div><div class="updated">Updated: 2026-03-28 18:29</div></div>
+</div></div>
+<div class="fl" id="fl">
+  <button class="fb on" data-f="all">全部</button>
+  <button class="fb" data-f="Body Models">🧬 Body Models</button>
+  <button class="fb" data-f="HPE→Mesh">👁️ HPE→Mesh</button>
+  <button class="fb" data-f="Motion-Physics">⚡ Motion-Physics</button>
+  <button class="fb" data-f="starred">⭐ Starred</button>
+  <button class="fb" data-f="favorites">❤️ Favorites</button>
+</div>
+<div class="pl" id="pl"></div>
+<script>
+const D=[{"title": "Learning to Reconstruct 3D Human Pose and Shape via Model-fitting in the Loop", "authors": "Kolotouros, Pavlakos, Black, Daniilidis", "summary": "中文标题: SPIN：训练循环中的模型拟合\n 核心贡献: 在训练过程中交替进行网络回归和SMPLify优化，两者互相改进\n 基于什么改进: 解决了HMR纯回归精度不够、SMPLify优化太慢的矛盾\n 关键结果: 3DPW PA-MPJPE从~70mm降到~59mm", "research_line": "HPE→Mesh", "evolution_note": "= HMR + 训练时SMPLify优化循环 → 回归+优化互相提升", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/1909.12828", "pdf_url": null, "starred": true, "favorite": true}, {"title": "DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills", "authors": "Peng, Abbeel, Levine, van de Panne", "summary": "中文标题: DeepMimic：示例引导的深度强化学习物理角色技能\n 核心贡献: 首次将深度RL与物理模拟结合，通过模仿参考运动学习物理可信的角色技能\n 基于什么改进: 突破了传统手工控制器无法扩展的瓶颈\n 关键结果: 首次用RL实现翻跟头、旋转等高动态动作的物理仿真", "research_line": "Motion-Physics", "evolution_note": "首次用RL+物理模拟实现运动模仿，可做翻跟头等高难度动作", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/1804.02717", "pdf_url": null, "starred": true, "favorite": true}, {"title": "PDP: Physics-Based Character Animation via Diffusion Policy", "authors": "Xie et al.", "summary": "中文标题: PDP：基于扩散策略的物理角色动画\n 核心贡献: 将扩散模型作为物理控制策略，用'噪声状态+干净动作'训练实现鲁棒物理控制\n 基于什么改进: 融合了扩散模型的多样性和物理模拟的正确性，解决了两者各自的短板\n 关键结果: OOD物理扰动96.3%成功率，首次实现物理可信的文本到运动生成", "research_line": "Motion-Physics", "evolution_note": "= 扩散策略 + 物理RL + '噪声状态干净动作'训练 → 数据驱动与物理仿真的最佳融合", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2406.00960", "pdf_url": null, "starred": true, "favorite": true}, {"title": "Expressive Body Capture: 3D Hands, Face, and Body from a Single Image", "authors": "Pavlakos, Choutas, Ghorbani, Bolkart, Osman, Tzionas, Black", "summary": "中文标题: SMPL-X：表达性全身捕捉\n 核心贡献: 将SMPL身体、MANO手部、FLAME面部统一为单一可微分模型SMPL-X\n 基于什么改进: 解决了SMPL只有躯干、无法捕捉手指动作和面部表情的问题\n 关键结果: 10475顶点、54关节，首次实现从单张图片恢复全身+手+脸的3D模型", "research_line": "Body Models", "evolution_note": "= SMPL + MANO(手) + FLAME(脸) → SMPL-X统一模型 (10475顶点, 54关节)", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/1904.05866", "pdf_url": null, "starred": true, "favorite": true}, {"title": "Human Motion Diffusion Model", "authors": "Tevet, Raab, Gordon, Shafir, Cohen-Or, Bermano", "summary": "中文标题: MDM：人体运动扩散模型\n 核心贡献: 首个基于Transformer的运动扩散模型，创新地预测样本本身(而非噪声)以支持几何约束损失\n 基于什么改进: 用扩散模型替代VAE，解决了VAE生成运动的模式坍缩和质量不足\n 关键结果: HumanML3D上SOTA，人类42%时间偏好生成运动而非真实运动", "research_line": "Motion-Physics", "evolution_note": "首个Transformer-based运动扩散模型，预测sample本身而非噪声 → 可加几何损失", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2209.14916", "pdf_url": null, "starred": true, "favorite": true}, {"title": "TokenHMR: Advancing Human Mesh Recovery with a Tokenized Pose Representation", "authors": "Dwivedi, Sun, Patel, Feng, Black", "summary": "中文标题: TokenHMR：离散化姿态表示的人体网格恢复\n 核心贡献: 将姿态空间离散化为token，将回归问题转化为分类问题\n 基于什么改进: 解决了HMR系列方法中2D图像对齐和3D姿态准确的根本矛盾\n 关键结果: 3DPW PA-MPJPE ~48mm，首次在两个指标上同时达到最优", "research_line": "HPE→Mesh", "evolution_note": "= HMR2.0 + 离散pose token化 → 首次同时兼顾2D对齐和3D准确", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2404.16752", "pdf_url": null, "starred": true, "favorite": true}, {"title": "Learning a Model of Facial Shape and Expression from 4D Scans", "authors": "Li, Bolkart, Black, Li, Romero", "summary": "中文标题: FLAME：从4D扫描学习面部形状与表情模型\n 核心贡献: 用SMPL类似框架建立面部参数化模型，包含身份、表情和姿态三个独立维度\n 基于什么改进: 填补了SMPL没有面部表情能力的空白\n 关键结果: 5023顶点，50维表情空间，成为面部重建标准模型", "research_line": "Body Models", "evolution_note": "= SMPL框架 + 面部表情建模 → FLAME面部模型 (5023顶点, 50维表情空间)", "keywords": [], "date": "", "arxiv_url": "https://flame.is.tue.mpg.de/", "pdf_url": null, "starred": true, "favorite": true}, {"title": "Universal Humanoid Motion Representations for Physics-Based Control", "authors": "Luo, Cao, Merel, Golber, Tan, Peng, Pathak", "summary": "中文标题: PULSE：通用人形运动表征\n 核心贡献: 通过信息瓶颈蒸馏学习32维通用运动潜空间，覆盖99.8%的AMASS运动数据\n 基于什么改进: 将ASE的技能嵌入推向真正的foundation model——单一表征涵盖几乎所有人类运动\n 关键结果: 32维潜空间覆盖99.8% AMASS，加速下游层次化RL任务", "research_line": "Motion-Physics", "evolution_note": "= ASE的进化 + 32维通用运动表征 + 信息瓶颈蒸馏 → 99.8%覆盖AMASS", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2310.04582", "pdf_url": null, "starred": true, "favorite": true}, {"title": "End-to-end Recovery of Human Shape and Pose", "authors": "Kanazawa, Black, Jacobs, Malik", "summary": "中文标题: HMR：端到端人体形状与姿态恢复\n 核心贡献: 首次将CNN与SMPL直接结合，通过重投影损失+判别器实现端到端mesh恢复\n 基于什么改进: 突破性地解决了3D mesh恢复需要大量3D标签的难题——用2D标注+对抗训练替代\n 关键结果: 首次在野外图片上训练mesh恢复，开创了整个HMR研究方向", "research_line": "HPE→Mesh", "evolution_note": "首次端到端从图像回归SMPL参数，用重投影损失+对抗训练绕开3D标签稀缺", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/1712.06584", "pdf_url": null, "starred": true, "favorite": true}, {"title": "Embodied Hands: Modeling and Capturing Hands and Bodies Together", "authors": "Romero, Tzionas, Black", "summary": "中文标题: MANO：具身手部模型\n 核心贡献: 将SMPL的线性混合蒙皮框架应用于手部，创建了778顶点、15关节的参数化手部模型\n 基于什么改进: 填补了SMPL只有躯干没有手指细节的空白\n 关键结果: 成为手部重建和抓取分析的标准模型", "research_line": "Body Models", "evolution_note": "= SMPL框架 + 手部关节建模 → MANO手部模型 (778顶点, 15关节)", "keywords": [], "date": "", "arxiv_url": "https://mano.is.tue.mpg.de/", "pdf_url": null, "starred": true, "favorite": true}, {"title": "VolumetricSMPL: A Neural Volumetric Body Model", "authors": "Mihajlovic et al.", "summary": "中文标题: VolumetricSMPL：神经体积人体模型\n 核心贡献: 在SMPL基础上加入神经签名距离场(SDF)，实现可微分的碰撞和接触查询\n 基于什么改进: 解决了SMPL/SMPL-X的mesh表示无法高效做碰撞检测和接触推理的问题\n 关键结果: 比COAP快10倍、内存省6倍，支持人物交互重建和自穿透消除", "research_line": "Body Models", "evolution_note": "= SMPL-X + 神经SDF + Neural Blend Weights → 可微碰撞/接触查询，比COAP快10x", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2506.23236", "pdf_url": null, "starred": true, "favorite": true}, {"title": "SMPL: A Skinned Multi-Person Linear Model", "authors": "Loper, Mahmood, Romero, Pons-Moll, Black", "summary": "中文标题: SMPL：蒙皮多人线性模型\n 核心贡献: 用顶点位移+线性混合蒙皮替代SCAPE的三角形变形，实现实时、可微分的参数化人体模型\n 基于什么改进: 解决了SCAPE不兼容图形引擎、速度慢的问题，将推理速度提升40倍\n 关键结果: 6890顶点、72姿态参数+10体型参数，成为该领域事实标准至今", "research_line": "Body Models", "evolution_note": "= SCAPE + 顶点级线性混合蒙皮(LBS) + learned blend shapes → 40x加速，兼容图形引擎", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/1612.03828", "pdf_url": null, "starred": true, "favorite": true}, {"title": "SCAPE: Shape Completion and Animation of People", "authors": "Anguelov, Srinivasan, Koller, Thrun, Rodgers, Davis", "summary": "中文标题: SCAPE：人体形状补全与动画\n 核心贡献: 首个从3D扫描数据学习的参数化人体模型，将体型和姿态变形解耦\n 基于什么改进: 替代了传统手工建模方法，首次用数据驱动方式捕捉人体形变\n 关键结果: 能从少量参数生成逼真的人体形状和姿态变化", "research_line": "Body Models", "evolution_note": "首个数据驱动参数化人体模型，PCA on body scans", "keywords": [], "date": "", "arxiv_url": "https://dl.acm.org/doi/10.1145/1073204.1073207", "pdf_url": null, "starred": true, "favorite": true}, {"title": "ASE: Large-Scale Reusable Adversarial Skill Embeddings", "authors": "Peng, Guo, Zhang, Levine, Fidler", "summary": "中文标题: ASE：大规模可复用对抗技能嵌入\n 核心贡献: 从大规模运动数据中学习低维技能嵌入空间，预训练后可迁移到下游任务\n 基于什么改进: 解决了AMP每个任务需要重新训练的问题\n 关键结果: 单一预训练模型适用于多种下游任务，实现了运动控制的foundation model雏形", "research_line": "Motion-Physics", "evolution_note": "= AMP + 可复用技能嵌入空间 → 预训练后可迁移到新任务", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2205.01906", "pdf_url": null, "starred": true, "favorite": true}, {"title": "AMP: Adversarial Motion Priors for Stylized Physics-Based Character Control", "authors": "Peng, Ma, Abbeel, Levine, Kanazawa", "summary": "中文标题: AMP：对抗运动先验\n 核心贡献: 用对抗学习从非结构化运动捕捉数据中学习运动先验，替代DeepMimic的手动片段选择\n 基于什么改进: 解决了DeepMimic需要手工选择和分割参考运动片段的问题\n 关键结果: 自动从大规模mocap数据组合技能，运动质量与tracking方法持平", "research_line": "Motion-Physics", "evolution_note": "= DeepMimic + 对抗运动判别器 → 无需手选参考运动片段", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2104.02180", "pdf_url": null, "starred": true, "favorite": true}, {"title": "Humans in 4D: Reconstructing and Tracking Humans with Transformers", "authors": "Goel, Pavlakos, Rajasegaran, Kanazawa, Malik", "summary": "中文标题: HMR 2.0 / 4DHumans：用Transformer重建和追踪人体\n 核心贡献: 用Vision Transformer替代ResNet作为backbone，Transformer decoder预测SMPL参数\n 基于什么改进: 解决了CNN缺乏全局注意力导致极端姿态估计差的问题\n 关键结果: 3DPW PA-MPJPE ~50mm，在遮挡和极端姿态上大幅提升", "research_line": "HPE→Mesh", "evolution_note": "= HMR + ViT backbone + Transformer decoder → 全局注意力显著提升极端姿态精度", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2305.20091", "pdf_url": null, "starred": true, "favorite": true}, {"title": "STAR: Sparse Trained Articulated Human Body Regressor", "authors": "Osman, Bolkart, Black", "summary": "中文标题: STAR：稀疏训练的人体铰接回归器\n 核心贡献: 通过稀疏化使每个关节只影响局部网格，大幅减少参数冗余\n 基于什么改进: 解决了SMPL的blend shapes全局耦合导致参数冗余、泛化差的问题\n 关键结果: 参数量减少80%，在CAESAR数据集上泛化误差从3.1mm降到2.8mm", "research_line": "Body Models", "evolution_note": "= SMPL + 稀疏局部化blend shapes → 参数量减80%，泛化更好", "keywords": [], "date": "", "arxiv_url": "https://arxiv.org/abs/2008.08535", "pdf_url": null, "starred": true, "favorite": true}];
+let cf='all';
+function render(){
+  let p=D;
+  if(cf==='starred')p=p.filter(x=>x.starred);
+  else if(cf==='favorites')p=p.filter(x=>x.favorite);
+  else if(cf!=='all')p=p.filter(x=>x.research_line===cf);
+  document.getElementById('stats').textContent=p.length+' / '+D.length+' papers';
+  if(!p.length){document.getElementById('pl').innerHTML='<div class="empty">暂无论文</div>';return}
+  document.getElementById('pl').innerHTML=p.map(card).join('');
+}
+function card(p){
+  const lc={'Body Models':'bm','HPE→Mesh':'hm','Motion-Physics':'mp'}[p.research_line]||'ot';
+  const kw=p.keywords.slice(0,4).map(k=>'<span class="tg tk">'+k+'</span>').join('');
+  const lt=p.research_line?'<span class="tg tl '+lc+'">'+p.research_line+'</span>':'';
+  const s=p.summary||'';
+  const sc=p.starred?'star':'';
+  const fc=p.favorite?'fav':'';
+  return '<div class="pc '+sc+' '+fc+'">'+
+    '<a class="pt" href="'+p.arxiv_url+'" target="_blank">'+p.title+'</a>'+
+    '<div class="pm">'+p.authors+(p.date?' · '+p.date:'')+'</div>'+
+    '<div class="tags">'+lt+kw+'</div>'+
+    (s?'<div class="ps">'+s+'</div>':'')+
+    (p.evolution_note?'<div class="pe">↗ '+p.evolution_note+'</div>':'')+
+    '<div class="lk">'+(p.arxiv_url?'<a href="'+p.arxiv_url+'" target="_blank">arXiv</a>':'')+(p.pdf_url?'<a href="'+p.pdf_url+'" target="_blank">PDF</a>':'')+'</div>'+
+    '</div>';
+}
+document.getElementById('fl').onclick=e=>{
+  if(!e.target.classList.contains('fb'))return;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  e.target.classList.add('on');
+  cf=e.target.dataset.f;
+  render();
+};
+render();
+</script>
+</body>
+</html>

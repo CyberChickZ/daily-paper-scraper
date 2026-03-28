@@ -1,0 +1,56 @@
+arxiv:
+  categories:
+    - cs.CV
+    - cs.GR
+    - cs.RO
+  keywords:
+    # Body models & reconstruction
+    - SMPL
+    - "parametric body"
+    - "body reconstruction"
+    - "mesh recovery"
+    - "human mesh"
+    - "body model"
+    - "expressive body"
+    - "neural body"
+    - "implicit human"
+    - "whole-body"
+    # Human motion
+    - "human motion"
+    - "motion generation"
+    - "motion synthesis"
+    - "motion capture"
+    - "motion diffusion"
+    - "character animation"
+    - "motion prior"
+    # Pose estimation
+    - "human pose"
+    - "hand pose"
+    - "pose estimation"
+    - "shape estimation"
+    # Physics-based (scoped to human/character)
+    - "physically plausible human"
+    - "physics-based character"
+    - "physics-based humanoid"
+    - "differentiable physics human"
+    - "contact-aware human"
+    - "human-object interaction"
+    # Specific systems & people
+    - "Karen Liu"
+    - SMPLSim
+    - "cloth simulation human"
+  max_results_per_category: 200
+
+huggingface:
+  enabled: true
+  api_url: "https://huggingface.co/api/daily_papers"
+
+notion:
+  # Token and DB ID loaded from .env or environment variables
+  token: ""
+  database_id: ""
+
+pipeline:
+  min_keyword_score: 2
+  hf_always_include: false
+  lookback_days: 1

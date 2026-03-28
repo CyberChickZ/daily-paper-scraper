@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Papers</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">📄 <span>Daily Papers</span></div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-line="all">全部</button>
+    <button class="filter-btn" data-line="Body Models">🧬 Body Models</button>
+    <button class="filter-btn" data-line="HPE→Mesh">👁️ HPE→Mesh</button>
+    <button class="filter-btn" data-line="Motion-Physics">⚡ Motion-Physics</button>
+    <button class="filter-btn" data-line="followed">📌 待读</button>
+    <button class="filter-btn" data-line="favorites">❤️ 收藏</button>
+  </div>
+
+  <div class="paper-list" id="paper-list">
+    <div class="loading">加载中...</div>
+  </div>
+
+  <script>
+    let allPapers = [];
+    let currentFilter = 'all';
+
+    async function loadPapers() {
+      const resp = await fetch('/api/papers');
+      allPapers = await resp.json();
+      renderPapers();
+    }
+
+    function renderPapers() {
+      const list = document.getElementById('paper-list');
+      let papers = allPapers;
+
+      if (currentFilter === 'followed') {
+        papers = papers.filter(p => p.followed);
+      } else if (currentFilter === 'favorites') {
+        papers = papers.filter(p => p.favorite);
+      } else if (currentFilter !== 'all') {
+        papers = papers.filter(p => p.research_line === currentFilter);
+      }
+
+      document.getElementById('stats').textContent = `${papers.length} / ${allPapers.length} papers`;
+
+      if (papers.length === 0) {
+        list.innerHTML = '<div class="empty">暂无论文</div>';
+        return;
+      }
+
+      list.innerHTML = papers.map(p => renderCard(p)).join('');
+    }
+
+    function renderCard(p) {
+      const lineClass = p.research_line
+        ? p.research_line.toLowerCase().replace(/[→\s]/g, '-').replace(/[^a-z-]/g, '')
+        : 'other';
+
+      const keywords = p.keywords.slice(0, 4).map(k =>
+        `<span class="tag tag-keyword">${k}</span>`
+      ).join('');
+
+      const lineTag = p.research_line
+        ? `<span class="tag tag-line ${lineClass}">${p.research_line}</span>`
+        : '';
+
+      const summary = p.summary || p.abstract || '';
+      const starClass = p.starred ? 'starred' : '';
+      const followActive = p.followed ? 'active' : '';
+      const favActive = p.favorite ? 'active-fav' : '';
+
+      return `
+        <div class="paper-card ${starClass}">
+          <div class="paper-header">
+            <a class="paper-title" href="${p.arxiv_url}" target="_blank">${p.title}</a>
+            <div class="paper-actions">
+              <button class="action-btn ${followActive}" onclick="toggle('${p.id}','Followed',${!p.followed},this)" title="关注/待读">📌</button>
+              <button class="action-btn ${favActive}" onclick="toggle('${p.id}','Favorite',${!p.favorite},this)" title="收藏">❤️</button>
+            </div>
+          </div>
+          <div class="paper-meta">
+            <span class="authors">${p.authors}</span>
+            ${p.date ? `<span class="date">· ${p.date}</span>` : ''}
+          </div>
+          <div class="paper-tags">
+            ${lineTag}${keywords}
+          </div>
+          ${summary ? `<div class="paper-summary">${summary}</div>` : ''}
+          ${p.evolution_note ? `<div class="paper-evolution">↗ ${p.evolution_note}</div>` : ''}
+          <div class="paper-links">
+            ${p.arxiv_url ? `<a href="${p.arxiv_url}" target="_blank">arXiv</a>` : ''}
+            ${p.pdf_url ? `<a href="${p.pdf_url}" target="_blank">PDF</a>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    async function toggle(pageId, prop, value, btn) {
+      // Optimistic UI
+      const paper = allPapers.find(p => p.id === pageId);
+      if (paper) {
+        if (prop === 'Followed') paper.followed = value;
+        if (prop === 'Favorite') paper.favorite = value;
+      }
+      if (prop === 'Followed') btn.classList.toggle('active', value);
+      if (prop === 'Favorite') btn.classList.toggle('active-fav', value);
+
+      await fetch('/api/toggle', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({page_id: pageId, property: prop, value})
+      });
+    }
+
+    // Filter buttons
+    document.getElementById('filters').addEventListener('click', e => {
+      if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        currentFilter = e.target.dataset.line;
+        renderPapers();
+      }
+    });
+
+    loadPapers();
+  </script>
+</body>
+</html>

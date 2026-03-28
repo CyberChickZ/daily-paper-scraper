@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daily-paper-scraper"
+version = "0.1.0"
+description = "Daily paper scraper from arXiv and HuggingFace with Notion sync and Chinese AI summaries"
+requires-python = ">=3.10"
+dependencies = [
+    "arxiv>=2.0",
+    "notion-client>=2.0",
+    "requests>=2.28",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+paper-fetch = "scripts.fetch_and_filter:main"
+paper-sync = "scripts.sync_notion:main"
+paper-setup-db = "scripts.setup_notion_db:main"
