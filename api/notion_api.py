@@ -2,7 +2,10 @@
 import time
 import json
 import requests
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None  # Not needed in Vercel (env vars used directly)
 
 NOTION_API = "https://api.notion.com/v1"
 NOTION_VERSION = "2022-06-28"
