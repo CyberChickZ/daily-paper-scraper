@@ -1,6 +1,8 @@
 """Vercel serverless function — serves the paper browser with live Notion data."""
 import os, sys, json, time
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+
+# Ensure api/ directory is on path for notion_api import
+sys.path.insert(0, os.path.dirname(__file__))
 
 from flask import Flask, jsonify, request, Response
 from notion_api import NotionAPI
@@ -9,10 +11,17 @@ app = Flask(__name__)
 
 
 def get_api():
-    return NotionAPI(
-        token=os.environ.get("NOTION_TOKEN", ""),
-        config_path=os.path.join(os.path.dirname(__file__), '..', 'config.yaml')
-    )
+    token = os.environ.get("NOTION_TOKEN", "")
+    db_id = os.environ.get("NOTION_DATABASE_ID", "")
+    api = NotionAPI.__new__(NotionAPI)
+    api.headers = {
+        "Authorization": f"Bearer {token}",
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+    }
+    api.db_id = db_id
+    api._last_call = 0
+    return api
 
 
 def parse_page(page):
