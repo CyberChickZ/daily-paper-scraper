@@ -67,7 +67,7 @@ def get_papers():
             "date": d["start"] if d else "",
             "arxiv_url": p.get("arXiv Link", {}).get("url", ""),
             "pdf_url": p.get("PDF Link", {}).get("url", ""),
-            "starred": gc("Starred"), "followed": gc("Followed"), "favorite": gc("Favorite"),
+            "read": gc("Read"), "focus": gc("Focus"),
         })
     result.sort(key=lambda x: x["date"] or "", reverse=True)
     return result
@@ -99,7 +99,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pt:hover{color:var(--blue)}
 .pa{display:flex;gap:4px;flex-shrink:0}
 .ab{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
-.ab:hover{background:var(--tag-bg)}.ab.on{background:var(--accent);border-color:var(--accent)}.ab.fv{background:var(--red);border-color:var(--red)}
+.ab:hover{background:var(--tag-bg)}.ab.on{background:var(--green);border-color:var(--green)}.ab.fv{background:var(--blue);border-color:var(--blue)}
 .pm{margin-top:6px;font-size:13px;color:var(--dim)}
 .tags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
 .tg{padding:2px 10px;border-radius:12px;font-size:12px;font-weight:500}
@@ -121,8 +121,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <button class="fb" data-f="Body Models">Body Models</button>
 <button class="fb" data-f="HPE&#8594;Mesh">HPE-Mesh</button>
 <button class="fb" data-f="Motion-Physics">Motion-Physics</button>
-<button class="fb" data-f="followed">To Read</button>
-<button class="fb" data-f="favorites">Favorites</button>
+<button class="fb" data-f="read">已读</button>
+<button class="fb" data-f="focus">关注</button>
 </div>
 <div class="pl" id="pl"><div class="ld">Loading...</div></div>
 <script>
@@ -130,8 +130,8 @@ let D=[],cf='all';
 async function load(){const r=await fetch('/api/papers');D=await r.json();render();}
 function render(){
 let p=D;
-if(cf==='followed')p=p.filter(x=>x.followed);
-else if(cf==='favorites')p=p.filter(x=>x.favorite);
+if(cf==='read')p=p.filter(x=>x.read);
+else if(cf==='focus')p=p.filter(x=>x.focus);
 else if(cf!=='all')p=p.filter(x=>x.research_line===cf);
 document.getElementById('st').textContent=p.length+' / '+D.length+' papers';
 if(!p.length){document.getElementById('pl').innerHTML='<div class="ld">No papers</div>';return;}
@@ -146,8 +146,8 @@ return '<div class="pc">'+
 '<div class="ph">'+
 '<a class="pt" href="'+esc(p.arxiv_url)+'" target="_blank">'+esc(p.title)+'</a>'+
 '<div class="pa">'+
-'<button class="ab '+(p.followed?'on':'')+'" onclick="tog(\\''+p.id+'\\',\\'Followed\\','+(!p.followed)+',this,\\'on\\')" title="Follow">&#128204;</button>'+
-'<button class="ab '+(p.favorite?'fv':'')+'" onclick="tog(\\''+p.id+'\\',\\'Favorite\\','+(!p.favorite)+',this,\\'fv\\')" title="Favorite">&#10084;&#65039;</button>'+
+'<button class="ab '+(p.read?'on':'')+'" onclick="tog(\\''+p.id+'\\',\\'Read\\','+(!p.read)+',this,\\'on\\')" title="已读">&#9989;</button>'+
+'<button class="ab '+(p.focus?'fv':'')+'" onclick="tog(\\''+p.id+'\\',\\'Focus\\','+(!p.focus)+',this,\\'fv\\')" title="关注">&#128269;</button>'+
 '</div></div>'+
 '<div class="pm">'+esc(p.authors)+(p.date?' &middot; '+p.date:'')+'</div>'+
 '<div class="tags">'+lt+kw+'</div>'+
@@ -157,7 +157,7 @@ return '<div class="pc">'+
 '</div>';}
 async function tog(id,prop,val,btn,cls){
 const paper=D.find(x=>x.id===id);
-if(paper){if(prop==='Followed')paper.followed=val;if(prop==='Favorite')paper.favorite=val;}
+if(paper){if(prop==='Read')paper.read=val;if(prop==='Focus')paper.focus=val;}
 btn.classList.toggle(cls,val);
 await fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:prop,value:val})});}
 document.getElementById('fl').onclick=function(e){
