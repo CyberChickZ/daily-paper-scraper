@@ -91,9 +91,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .fl{max-width:900px;margin:16px auto;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap}
 .fb{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;transition:all .15s;color:var(--dim)}
 .fb:hover{border-color:var(--accent);color:var(--text)}.fb.on{background:var(--text);color:#fff;border-color:var(--text)}
-.pl{max-width:900px;margin:0 auto;padding:0 24px 60px}
-.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:12px;transition:all .15s}
+.pl{max-width:900px;margin:0 auto;padding:0 24px 80px}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:12px;transition:all .4s ease}
 .pc:hover{border-color:#d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pc.fade-out{opacity:0;transform:translateX(60px);max-height:0;padding:0 24px;margin-bottom:0;overflow:hidden}
 .ph{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .pt{font-size:16px;font-weight:600;color:var(--text);text-decoration:none;line-height:1.4;flex:1}
 .pt:hover{color:var(--blue)}
@@ -109,6 +110,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pe{margin-top:8px;font-size:13px;color:var(--purple);font-style:italic}
 .lk{margin-top:10px;display:flex;gap:12px}.lk a{font-size:13px;color:var(--blue);text-decoration:none}.lk a:hover{text-decoration:underline}
 .ld{text-align:center;padding:60px;color:var(--dim)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;transition:transform .3s ease;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast button{background:var(--accent);color:#fff;border:none;padding:4px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+.toast button:hover{opacity:.85}
+.toast .countdown{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -121,20 +128,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <button class="fb" data-f="Body Models">Body Models</button>
 <button class="fb" data-f="HPE&#8594;Mesh">HPE-Mesh</button>
 <button class="fb" data-f="Motion-Physics">Motion-Physics</button>
-<button class="fb" data-f="read">已读</button>
-<button class="fb" data-f="focus">关注</button>
+<button class="fb" data-f="read">&#128214; 已读</button>
+<button class="fb" data-f="focus">&#128269; 关注</button>
 </div>
 <div class="pl" id="pl"><div class="ld">Loading...</div></div>
+<div class="toast" id="toast"></div>
 <script>
-let D=[],cf='all';
+let D=[],cf='all',undoTimer=null,undoId=null;
 async function load(){const r=await fetch('/api/papers');D=await r.json();render();}
 function render(){
 let p=D;
-if(cf==='read')p=p.filter(x=>x.read);
+if(cf==='all')p=p.filter(x=>!x.read);
+else if(cf==='read')p=p.filter(x=>x.read);
 else if(cf==='focus')p=p.filter(x=>x.focus);
-else if(cf!=='all')p=p.filter(x=>x.research_line===cf);
-document.getElementById('st').textContent=p.length+' / '+D.length+' papers';
-if(!p.length){document.getElementById('pl').innerHTML='<div class="ld">No papers</div>';return;}
+else p=p.filter(x=>x.research_line===cf&&!x.read);
+const total=D.filter(x=>!x.read).length;
+const readCount=D.filter(x=>x.read).length;
+document.getElementById('st').textContent=cf==='read'?readCount+' read':p.length+' unread / '+D.length+' total';
+if(!p.length){document.getElementById('pl').innerHTML='<div class="ld">'+(cf==='read'?'No read papers yet':'No papers')+'</div>';return;}
 document.getElementById('pl').innerHTML=p.map(card).join('');
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -142,12 +153,14 @@ function card(p){
 const lc={'Body Models':'bm','HPE\\u2192Mesh':'hm','Motion-Physics':'mp'}[p.research_line]||'ot';
 const kw=p.keywords.slice(0,4).map(k=>'<span class="tg tk">'+esc(k)+'</span>').join('');
 const lt=p.research_line?'<span class="tg tl '+lc+'">'+esc(p.research_line)+'</span>':'';
-return '<div class="pc">'+
+return '<div class="pc" id="card-'+p.id+'">'+
 '<div class="ph">'+
 '<a class="pt" href="'+esc(p.arxiv_url)+'" target="_blank">'+esc(p.title)+'</a>'+
 '<div class="pa">'+
-'<button class="ab '+(p.read?'on':'')+'" onclick="tog(\\''+p.id+'\\',\\'Read\\','+(!p.read)+',this,\\'on\\')" title="已读">&#9989;</button>'+
-'<button class="ab '+(p.focus?'fv':'')+'" onclick="tog(\\''+p.id+'\\',\\'Focus\\','+(!p.focus)+',this,\\'fv\\')" title="关注">&#128269;</button>'+
+(p.read?
+'<button class="ab" onclick="markUnread(\\''+p.id+'\\',this)" title="Mark unread">&#128194;</button>':
+'<button class="ab" onclick="markRead(\\''+p.id+'\\',this)" title="Mark read">&#9989;</button>')+
+'<button class="ab '+(p.focus?'fv':'')+'" onclick="togFocus(\\''+p.id+'\\','+(!p.focus)+',this)" title="Focus">&#128269;</button>'+
 '</div></div>'+
 '<div class="pm">'+esc(p.authors)+(p.date?' &middot; '+p.date:'')+'</div>'+
 '<div class="tags">'+lt+kw+'</div>'+
@@ -155,11 +168,43 @@ return '<div class="pc">'+
 (p.evolution_note?'<div class="pe">&nearr; '+esc(p.evolution_note)+'</div>':'')+
 '<div class="lk">'+(p.arxiv_url?'<a href="'+esc(p.arxiv_url)+'" target="_blank">arXiv</a>':'')+(p.pdf_url?'<a href="'+esc(p.pdf_url)+'" target="_blank">PDF</a>':'')+'</div>'+
 '</div>';}
-async function tog(id,prop,val,btn,cls){
+function markRead(id){
+const paper=D.find(x=>x.id===id);if(!paper)return;
+paper.read=true;
+const el=document.getElementById('card-'+id);
+if(el&&cf!=='read'){el.classList.add('fade-out');setTimeout(function(){render();},400);}else{render();}
+showUndo(id,paper.title);
+fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:'Read',value:true})});
+}
+function markUnread(id){
+const paper=D.find(x=>x.id===id);if(!paper)return;
+paper.read=false;
+render();
+fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:'Read',value:false})});
+}
+function showUndo(id,title){
+if(undoTimer)clearTimeout(undoTimer);
+undoId=id;
+const t=document.getElementById('toast');
+const short=title.length>30?title.slice(0,30)+'...':title;
+t.innerHTML='<div class="countdown"></div><span>'+esc(short)+' marked read</span><button onclick="doUndo()">Undo</button>';
+t.classList.add('show');
+undoTimer=setTimeout(function(){t.classList.remove('show');undoId=null;},5000);
+}
+function doUndo(){
+if(!undoId)return;
+const t=document.getElementById('toast');
+t.classList.remove('show');
+clearTimeout(undoTimer);
+markUnread(undoId);
+undoId=null;
+}
+function togFocus(id,val,btn){
 const paper=D.find(x=>x.id===id);
-if(paper){if(prop==='Read')paper.read=val;if(prop==='Focus')paper.focus=val;}
-btn.classList.toggle(cls,val);
-await fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:prop,value:val})});}
+if(paper)paper.focus=val;
+btn.classList.toggle('fv',val);
+fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:'Focus',value:val})});
+}
 document.getElementById('fl').onclick=function(e){
 if(!e.target.classList.contains('fb'))return;
 document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
