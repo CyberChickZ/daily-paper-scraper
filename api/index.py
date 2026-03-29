@@ -110,12 +110,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pe{margin-top:8px;font-size:13px;color:var(--purple);font-style:italic}
 .lk{margin-top:10px;display:flex;gap:12px}.lk a{font-size:13px;color:var(--blue);text-decoration:none}.lk a:hover{text-decoration:underline}
 .ld{text-align:center;padding:60px;color:var(--dim)}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;transition:transform .3s ease;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.toast button{background:var(--accent);color:#fff;border:none;padding:4px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
-.toast button:hover{opacity:.85}
-.toast .countdown{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
+.undo-fab{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:var(--text);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:200;display:none;align-items:center;justify-content:center;font-size:22px;transition:transform .2s ease,box-shadow .2s ease}
+.undo-fab:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.undo-fab.show{display:flex}
+.undo-fab .badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 </style>
 </head>
 <body>
@@ -132,9 +130,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <button class="fb" data-f="focus">&#128269; 关注</button>
 </div>
 <div class="pl" id="pl"><div class="ld">Loading...</div></div>
-<div class="toast" id="toast"></div>
+<button class="undo-fab" id="undo-fab" onclick="doUndo()" title="Undo last read">&#8630;<span class="badge" id="undo-badge">0</span></button>
 <script>
-let D=[],cf='all',undoTimer=null,undoId=null;
+let D=[],cf='all',undoStack=[];
 async function load(){const r=await fetch('/api/papers');D=await r.json();render();}
 function render(){
 let p=D;
@@ -173,7 +171,8 @@ const paper=D.find(x=>x.id===id);if(!paper)return;
 paper.read=true;
 const el=document.getElementById('card-'+id);
 if(el&&cf!=='read'){el.classList.add('fade-out');setTimeout(function(){render();},400);}else{render();}
-showUndo(id,paper.title);
+undoStack.push(id);
+updateFab();
 fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:'Read',value:true})});
 }
 function markUnread(id){
@@ -182,22 +181,17 @@ paper.read=false;
 render();
 fetch('/api/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page_id:id,property:'Read',value:false})});
 }
-function showUndo(id,title){
-if(undoTimer)clearTimeout(undoTimer);
-undoId=id;
-const t=document.getElementById('toast');
-const short=title.length>30?title.slice(0,30)+'...':title;
-t.innerHTML='<div class="countdown"></div><span>'+esc(short)+' marked read</span><button onclick="doUndo()">Undo</button>';
-t.classList.add('show');
-undoTimer=setTimeout(function(){t.classList.remove('show');undoId=null;},5000);
+function updateFab(){
+const fab=document.getElementById('undo-fab');
+const badge=document.getElementById('undo-badge');
+if(undoStack.length>0){fab.classList.add('show');badge.textContent=undoStack.length;}
+else{fab.classList.remove('show');}
 }
 function doUndo(){
-if(!undoId)return;
-const t=document.getElementById('toast');
-t.classList.remove('show');
-clearTimeout(undoTimer);
-markUnread(undoId);
-undoId=null;
+if(!undoStack.length)return;
+const id=undoStack.pop();
+markUnread(id);
+updateFab();
 }
 function togFocus(id,val,btn){
 const paper=D.find(x=>x.id===id);
