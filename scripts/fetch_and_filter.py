@@ -44,13 +44,14 @@ def main():
             hf_always_include=False,
         )
     else:
-        # Daily mode: category + date
-        target_date = date.today() - timedelta(days=cfg["pipeline"]["lookback_days"])
+        # Daily mode: keyword search within 25h window
+        target_date = date.today()
 
         arxiv_papers = fetch_arxiv_papers(
             categories=cfg["arxiv"]["categories"],
             target_date=target_date,
             max_results=cfg["arxiv"]["max_results_per_category"],
+            keywords=cfg["arxiv"]["keywords"],
         )
 
         hf_papers = []

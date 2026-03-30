@@ -28,33 +28,48 @@ def fetch_arxiv_papers(
     categories: list[str],
     target_date: date,
     max_results: int = 200,
+    keywords: list[str] | None = None,
 ) -> list[Paper]:
-    """Daily mode: fetch by category + date."""
+    """Daily mode: keyword search within 25-hour window. Falls back to category if no keywords."""
     client = arxiv.Client(page_size=50, delay_seconds=5.0, num_retries=5)
     all_papers: dict[str, Paper] = {}
 
-    date_from = target_date.strftime("%Y%m%d") + "0000"
-    date_to = (target_date + timedelta(days=1)).strftime("%Y%m%d") + "2359"
+    # 25-hour window to avoid timezone gaps
+    date_from = (target_date - timedelta(days=1)).strftime("%Y%m%d") + "2300"
+    date_to = target_date.strftime("%Y%m%d") + "2359"
+    date_filter = f"submittedDate:[{date_from} TO {date_to}]"
 
-    for i, cat in enumerate(categories):
-        if i > 0:
-            time.sleep(10)
-        query = f"cat:{cat} AND submittedDate:[{date_from} TO {date_to}]"
-        logger.info(f"Querying arXiv: {query}")
-
-        search = arxiv.Search(
-            query=query,
-            max_results=max_results,
-            sort_by=arxiv.SortCriterion.SubmittedDate,
-        )
-
-        try:
-            for result in client.results(search):
-                p = _result_to_paper(result)
-                if p.paper_id not in all_papers:
-                    all_papers[p.paper_id] = p
-        except Exception as e:
-            logger.warning(f"Error fetching {cat}: {e}")
+    # Keyword-based search (much fewer API calls than category scan)
+    if keywords:
+        for i, kw in enumerate(keywords):
+            if i > 0:
+                time.sleep(8)
+            kw_query = f'all:"{kw}"' if " " in kw else f"all:{kw}"
+            query = f"{kw_query} AND {date_filter}"
+            logger.info(f"Querying arXiv: {query}")
+            search = arxiv.Search(query=query, max_results=50, sort_by=arxiv.SortCriterion.SubmittedDate)
+            try:
+                for result in client.results(search):
+                    p = _result_to_paper(result)
+                    if p.paper_id not in all_papers:
+                        all_papers[p.paper_id] = p
+            except Exception as e:
+                logger.warning(f"Error fetching keyword '{kw}': {e}")
+    else:
+        # Fallback: category scan
+        for i, cat in enumerate(categories):
+            if i > 0:
+                time.sleep(10)
+            query = f"cat:{cat} AND {date_filter}"
+            logger.info(f"Querying arXiv: {query}")
+            search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate)
+            try:
+                for result in client.results(search):
+                    p = _result_to_paper(result)
+                    if p.paper_id not in all_papers:
+                        all_papers[p.paper_id] = p
+            except Exception as e:
+                logger.warning(f"Error fetching {cat}: {e}")
 
     logger.info(f"arXiv: fetched {len(all_papers)} unique papers")
     return list(all_papers.values())

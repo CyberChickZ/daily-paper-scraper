@@ -62,7 +62,8 @@ def get_papers():
         d = p.get("Date", {}).get("date")
         result.append({
             "id": page["id"], "title": title, "authors": gt("Authors"),
-            "summary": gt("Chinese Summary"), "research_line": gs("Research Line"),
+            "summary": gt("Chinese Summary"), "highlight": gt("Highlight"),
+            "lab": gt("Lab"), "research_line": gs("Research Line"),
             "evolution_note": gt("Evolution Note"), "keywords": gm("Keywords"),
             "date": d["start"] if d else "",
             "arxiv_url": p.get("arXiv Link", {}).get("url", ""),
@@ -108,6 +109,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .tk{background:var(--tag-bg);color:var(--dim)}
 .ps{margin-top:12px;font-size:14px;color:var(--text);white-space:pre-line;line-height:1.7}
 .pe{margin-top:8px;font-size:13px;color:var(--purple);font-style:italic}
+.hl{margin-top:10px;font-size:14px;color:var(--text);line-height:1.6;padding:10px 14px;background:#fefce8;border-left:3px solid var(--accent);border-radius:0 8px 8px 0}
+.lab{font-size:12px;color:var(--blue);font-weight:500}
+.new-badge{display:inline-block;padding:1px 8px;border-radius:8px;font-size:11px;font-weight:700;background:var(--red);color:#fff;margin-left:8px;vertical-align:middle}
 .lk{margin-top:10px;display:flex;gap:12px}.lk a{font-size:13px;color:var(--blue);text-decoration:none}.lk a:hover{text-decoration:underline}
 .ld{text-align:center;padding:60px;color:var(--dim)}
 .undo-fab{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:var(--text);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:200;display:none;align-items:center;justify-content:center;font-size:22px;transition:transform .2s ease,box-shadow .2s ease}
@@ -147,21 +151,25 @@ if(!p.length){document.getElementById('pl').innerHTML='<div class="ld">'+(cf==='
 document.getElementById('pl').innerHTML=p.map(card).join('');
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function isNew(d){if(!d)return false;var t=new Date();t.setDate(t.getDate()-2);return new Date(d)>=t;}
 function card(p){
 const lc={'Body Models':'bm','HPE\\u2192Mesh':'hm','Motion-Physics':'mp'}[p.research_line]||'ot';
 const kw=p.keywords.slice(0,4).map(k=>'<span class="tg tk">'+esc(k)+'</span>').join('');
 const lt=p.research_line?'<span class="tg tl '+lc+'">'+esc(p.research_line)+'</span>':'';
+const nb=isNew(p.date)?'<span class="new-badge">NEW</span>':'';
+const lb=p.lab?'<span class="lab">'+esc(p.lab)+'</span>':'';
 return '<div class="pc" id="card-'+p.id+'">'+
 '<div class="ph">'+
-'<a class="pt" href="'+esc(p.arxiv_url)+'" target="_blank">'+esc(p.title)+'</a>'+
+'<a class="pt" href="'+esc(p.arxiv_url)+'" target="_blank">'+esc(p.title)+nb+'</a>'+
 '<div class="pa">'+
 (p.read?
 '<button class="ab" onclick="markUnread(\\''+p.id+'\\',this)" title="Mark unread">&#128194;</button>':
 '<button class="ab" onclick="markRead(\\''+p.id+'\\',this)" title="Mark read">&#9989;</button>')+
 '<button class="ab '+(p.focus?'fv':'')+'" onclick="togFocus(\\''+p.id+'\\','+(!p.focus)+',this)" title="Focus">&#128269;</button>'+
 '</div></div>'+
-'<div class="pm">'+esc(p.authors)+(p.date?' &middot; '+p.date:'')+'</div>'+
+'<div class="pm">'+esc(p.authors)+(lb?' &middot; '+lb:'')+(p.date?' &middot; '+p.date:'')+'</div>'+
 '<div class="tags">'+lt+kw+'</div>'+
+(p.highlight?'<div class="hl">'+esc(p.highlight)+'</div>':'')+
 (p.summary?'<div class="ps">'+esc(p.summary)+'</div>':'')+
 (p.evolution_note?'<div class="pe">&nearr; '+esc(p.evolution_note)+'</div>':'')+
 '<div class="lk">'+(p.arxiv_url?'<a href="'+esc(p.arxiv_url)+'" target="_blank">arXiv</a>':'')+(p.pdf_url?'<a href="'+esc(p.pdf_url)+'" target="_blank">PDF</a>':'')+'</div>'+

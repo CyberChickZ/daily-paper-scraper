@@ -18,6 +18,10 @@ class Paper:
     matched_keywords: list[str] = field(default_factory=list)
     keyword_score: int = 0
     chinese_summary: str = ""
+    highlight: str = ""
+    lab: str = ""
+    research_line: str = ""
+    evolution_note: str = ""
     hf_upvotes: int = 0
 
     def to_dict(self) -> dict:

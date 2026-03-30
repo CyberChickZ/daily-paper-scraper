@@ -50,15 +50,19 @@ def create_page(token, db_id, paper):
         "Name": {"title": [{"text": {"content": paper["title"][:2000]}}]},
         "Authors": {"rich_text": split_text(", ".join(paper.get("authors", []))[:2000])},
         "Chinese Summary": {"rich_text": split_text(paper.get("chinese_summary", ""))},
+        "Highlight": {"rich_text": split_text(paper.get("highlight", ""))},
+        "Lab": {"rich_text": split_text(paper.get("lab", ""))},
         "Abstract": {"rich_text": split_text(paper.get("abstract", "")[:2000])},
         "Categories": {"multi_select": [{"name": c} for c in paper.get("categories", [])[:10]]},
         "Keywords": {"multi_select": [{"name": k} for k in paper.get("matched_keywords", [])[:10]]},
         "Source": {"select": {"name": paper.get("source", "arXiv")}},
         "arXiv Link": {"url": paper.get("arxiv_url", "")},
         "PDF Link": {"url": paper.get("pdf_url", "")},
-        "Reading Status": {"select": {"name": "Unread"}},
-        "Starred": {"checkbox": paper.get("keyword_score", 0) >= 3},
     }
+    if paper.get("research_line"):
+        properties["Research Line"] = {"select": {"name": paper["research_line"]}}
+    if paper.get("evolution_note"):
+        properties["Evolution Note"] = {"rich_text": split_text(paper["evolution_note"])}
     if paper.get("published_date"):
         properties["Date"] = {"date": {"start": paper["published_date"]}}
 
