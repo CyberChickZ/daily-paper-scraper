@@ -39,22 +39,27 @@ def fetch_arxiv_papers(
     date_to = target_date.strftime("%Y%m%d") + "2359"
     date_filter = f"submittedDate:[{date_from} TO {date_to}]"
 
-    # Keyword-based search (much fewer API calls than category scan)
+    # Keyword-based search: batch keywords into OR groups to reduce API calls
     if keywords:
-        for i, kw in enumerate(keywords):
-            if i > 0:
-                time.sleep(8)
-            kw_query = f'all:"{kw}"' if " " in kw else f"all:{kw}"
-            query = f"{kw_query} AND {date_filter}"
-            logger.info(f"Querying arXiv: {query}")
-            search = arxiv.Search(query=query, max_results=50, sort_by=arxiv.SortCriterion.SubmittedDate)
+        batch_size = 8
+        for batch_idx in range(0, len(keywords), batch_size):
+            if batch_idx > 0:
+                time.sleep(10)
+            batch = keywords[batch_idx:batch_idx + batch_size]
+            parts = []
+            for kw in batch:
+                parts.append(f'all:"{kw}"' if " " in kw else f"all:{kw}")
+            kw_query = " OR ".join(parts)
+            query = f"({kw_query}) AND {date_filter}"
+            logger.info(f"Querying arXiv batch {batch_idx // batch_size + 1}: {len(batch)} keywords")
+            search = arxiv.Search(query=query, max_results=100, sort_by=arxiv.SortCriterion.SubmittedDate)
             try:
                 for result in client.results(search):
                     p = _result_to_paper(result)
                     if p.paper_id not in all_papers:
                         all_papers[p.paper_id] = p
             except Exception as e:
-                logger.warning(f"Error fetching keyword '{kw}': {e}")
+                logger.warning(f"Error fetching batch {batch_idx // batch_size + 1}: {e}")
     else:
         # Fallback: category scan
         for i, cat in enumerate(categories):

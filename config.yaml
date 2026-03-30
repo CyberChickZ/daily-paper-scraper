@@ -4,18 +4,53 @@ arxiv:
     - cs.GR
     - cs.RO
   keywords:
-    # Body models & reconstruction
+    # === Line 1: Body Models & Mesh Recovery ===
     - SMPL
-    - "parametric body"
-    - "body reconstruction"
+    - SMPL-X
     - "mesh recovery"
     - "human mesh"
     - "body model"
-    - "expressive body"
+    - "parametric body"
+    - "body reconstruction"
     - "neural body"
     - "implicit human"
     - "whole-body"
-    # Human motion
+    - "expressive body"
+    # MHR specific systems
+    - "SAM 3D Body"
+    - HMR
+    - HSMR
+    - TokenHMR
+    - "4DHumans"
+    # Biomechanical body
+    - SKEL
+    - "biomechanical body"
+    - "skeletal model"
+    - "de Leva"
+    - "segment inertia"
+    - "body segment"
+
+    # === Line 2: HPE / Pose / World Coordinates ===
+    - "human pose"
+    - "pose estimation"
+    - "shape estimation"
+    - "hand pose"
+    - WHAM
+    - GVHMR
+    - "world coordinate"
+    - "global trajectory"
+    - "camera-to-world"
+    - "gravity-view"
+    - "visual odometry"
+    - IPMAN
+    - "center of pressure"
+    - "center of mass"
+    - "ground contact"
+    - "foot contact"
+    - "monocular human"
+    - "video human pose"
+
+    # === Line 3: Motion & Physics ===
     - "human motion"
     - "motion generation"
     - "motion synthesis"
@@ -23,22 +58,48 @@ arxiv:
     - "motion diffusion"
     - "character animation"
     - "motion prior"
-    # Pose estimation
-    - "human pose"
-    - "hand pose"
-    - "pose estimation"
-    - "shape estimation"
-    # Physics-based (scoped to human/character)
-    - "physically plausible human"
     - "physics-based character"
     - "physics-based humanoid"
-    - "differentiable physics human"
+    - "physically plausible"
+    - "differentiable physics"
     - "contact-aware human"
     - "human-object interaction"
-    # Specific systems & people
+    # Physics-informed pose/motion
+    - PhysPT
+    - "physics loss"
+    - "analytical physics"
+    - LARP
+    - "learned physics"
+    - "physics prior"
+    - "muscle simulation"
+    - "musculoskeletal"
+    - MuscleMimic
+
+    # === Line 4: Mamba / SSM (temporal architecture) ===
+    - Mamba
+    - Mamba2
+    - "state space model"
+    - "selective state space"
+    - PS-Mamba
+    - BiMamba
+    - "graph mamba"
+    - "vision mamba"
+    - "temporal mamba"
+
+    # === Line 5: 3D Vision Foundation (camera, depth, scene) ===
+    - VGGT
+    - "camera pose estimation"
+    - "structure from motion"
+    - "monocular depth"
+    - "multi-view reconstruction"
+    - "3D reconstruction"
+    - DUSt3R
+
+    # === Specific people & systems ===
     - "Karen Liu"
     - SMPLSim
     - "cloth simulation human"
+    - "Fast SAM"
   max_results_per_category: 200
 
 huggingface:
