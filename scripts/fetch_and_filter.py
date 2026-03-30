@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fetch papers from arXiv and HuggingFace, filter by keywords, output JSON."""
 import argparse
+import os
 from datetime import date, timedelta
 
 from daily_paper_scraper.config import load_config
@@ -8,6 +9,7 @@ from daily_paper_scraper.models import papers_to_json
 from daily_paper_scraper.scrapers.arxiv_scraper import fetch_arxiv_papers, fetch_arxiv_by_keywords
 from daily_paper_scraper.scrapers.hf_scraper import fetch_hf_daily_papers
 from daily_paper_scraper.filter import merge_sources, filter_papers
+from daily_paper_scraper.focus_tracker import get_focus_papers, extract_dynamic_keywords
 from daily_paper_scraper.utils import setup_logging
 
 
@@ -47,11 +49,21 @@ def main():
         # Daily mode: keyword search within 25h window
         target_date = date.today()
 
+        # Merge static keywords + dynamic keywords from Focus papers
+        all_keywords = list(cfg["arxiv"]["keywords"])
+        token = os.environ.get("NOTION_TOKEN", "")
+        db_id = os.environ.get("NOTION_DATABASE_ID", "")
+        if token and db_id:
+            focus_papers = get_focus_papers(token, db_id)
+            dynamic_kw = extract_dynamic_keywords(focus_papers)
+            all_keywords.extend(dynamic_kw)
+            print(f"Keywords: {len(cfg['arxiv']['keywords'])} static + {len(dynamic_kw)} from {len(focus_papers)} focus papers")
+
         arxiv_papers = fetch_arxiv_papers(
             categories=cfg["arxiv"]["categories"],
             target_date=target_date,
             max_results=cfg["arxiv"]["max_results_per_category"],
-            keywords=cfg["arxiv"]["keywords"],
+            keywords=all_keywords,
         )
 
         hf_papers = []
@@ -62,7 +74,7 @@ def main():
 
         filtered = filter_papers(
             papers=merged,
-            keywords=cfg["arxiv"]["keywords"],
+            keywords=all_keywords,
             min_score=cfg["pipeline"]["min_keyword_score"],
             hf_always_include=cfg["pipeline"]["hf_always_include"],
         )

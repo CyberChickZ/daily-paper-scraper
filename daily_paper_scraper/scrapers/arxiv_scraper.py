@@ -48,7 +48,12 @@ def fetch_arxiv_papers(
             batch = keywords[batch_idx:batch_idx + batch_size]
             parts = []
             for kw in batch:
-                parts.append(f'all:"{kw}"' if " " in kw else f"all:{kw}")
+                if kw.startswith("au:"):
+                    parts.append(kw)  # already formatted: au:"Surname"
+                elif " " in kw:
+                    parts.append(f'all:"{kw}"')
+                else:
+                    parts.append(f"all:{kw}")
             kw_query = " OR ".join(parts)
             query = f"({kw_query}) AND {date_filter}"
             logger.info(f"Querying arXiv batch {batch_idx // batch_size + 1}: {len(batch)} keywords")
