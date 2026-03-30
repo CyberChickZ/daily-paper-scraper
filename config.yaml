@@ -51,6 +51,6 @@ notion:
   database_id: ""
 
 pipeline:
-  min_keyword_score: 2
+  min_keyword_score: 1
   hf_always_include: false
-  lookback_days: 1
+  lookback_days: 2

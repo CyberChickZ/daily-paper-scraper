@@ -1,5 +1,6 @@
 from __future__ import annotations
 import arxiv
+import time
 from datetime import date, timedelta
 import logging
 
@@ -29,13 +30,15 @@ def fetch_arxiv_papers(
     max_results: int = 200,
 ) -> list[Paper]:
     """Daily mode: fetch by category + date."""
-    client = arxiv.Client(page_size=100, delay_seconds=3.0, num_retries=3)
+    client = arxiv.Client(page_size=50, delay_seconds=5.0, num_retries=5)
     all_papers: dict[str, Paper] = {}
 
     date_from = target_date.strftime("%Y%m%d") + "0000"
     date_to = (target_date + timedelta(days=1)).strftime("%Y%m%d") + "2359"
 
-    for cat in categories:
+    for i, cat in enumerate(categories):
+        if i > 0:
+            time.sleep(10)
         query = f"cat:{cat} AND submittedDate:[{date_from} TO {date_to}]"
         logger.info(f"Querying arXiv: {query}")
 
