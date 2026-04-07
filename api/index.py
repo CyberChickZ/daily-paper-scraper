@@ -85,10 +85,14 @@ HTML = """<!DOCTYPE html>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
 .hd{background:#fff;border-bottom:1px solid var(--border);padding:16px 0;position:sticky;top:0;z-index:100}
-.hi{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.hi{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hr{display:flex;align-items:center;gap:12px}
 .logo{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px}
 .logo span{color:var(--accent)}
 .st{font-size:13px;color:var(--dim)}
+.lang-btn{padding:4px 12px;border-radius:14px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;transition:all .15s}
+.lang-btn:hover{border-color:var(--accent);color:var(--text)}
+.no-summary-note{font-size:12px;color:var(--dim);font-style:italic;margin-top:8px;padding:8px 12px;background:#fef3c7;border-left:3px solid var(--accent);border-radius:0 6px 6px 0}
 .fl{max-width:900px;margin:16px auto;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap}
 .fb{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;transition:all .15s;color:var(--dim)}
 .fb:hover{border-color:var(--accent);color:var(--text)}.fb.on{background:var(--text);color:#fff;border-color:var(--text)}
@@ -123,55 +127,72 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <body>
 <div class="hd"><div class="hi">
 <div class="logo">&#128196; <span>Daily Papers</span></div>
-<div class="st" id="st">Loading...</div>
+<div class="hr">
+<div class="st" id="st">&#21152;&#36733;&#20013;...</div>
+<button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+</div>
 </div></div>
 <div class="fl" id="fl">
-<button class="fb on" data-f="all">All</button>
+<button class="fb on" data-f="all"></button>
 <button class="fb" data-f="Body Models">Body Models</button>
-<button class="fb" data-f="HPE&#8594;Mesh">HPE-Mesh</button>
+<button class="fb" data-f="HPE&#8594;Mesh">HPE&#8594;Mesh</button>
 <button class="fb" data-f="Motion-Physics">Motion-Physics</button>
-<button class="fb" data-f="read">&#128214; 已读</button>
-<button class="fb" data-f="focus">&#128269; 关注</button>
+<button class="fb" data-f="read">&#128214; <span class="fb-label" data-k="read"></span></button>
+<button class="fb" data-f="focus">&#128269; <span class="fb-label" data-k="focus"></span></button>
 </div>
-<div class="pl" id="pl"><div class="ld">Loading...</div></div>
-<button class="undo-fab" id="undo-fab" onclick="doUndo()" title="Undo last read">&#8630;<span class="badge" id="undo-badge">0</span></button>
+<div class="pl" id="pl"><div class="ld">&#21152;&#36733;&#20013;...</div></div>
+<button class="undo-fab" id="undo-fab" onclick="doUndo()" title="Undo">&#8630;<span class="badge" id="undo-badge">0</span></button>
 <script>
-let D=[],cf='all',undoStack=[];
-async function load(){const r=await fetch('/api/papers');D=await r.json();render();}
+const I18N={
+zh:{loading:'\u52a0\u8f7d\u4e2d...',unread:'\u672a\u8bfb',total:'\u603b\u8ba1',read:'\u5df2\u8bfb',focus:'\u5173\u6ce8',all:'\u5168\u90e8',noPapers:'\u6682\u65e0\u8bba\u6587',noRead:'\u6682\u65e0\u5df2\u8bfb\u8bba\u6587',markRead:'\u6807\u8bb0\u4e3a\u5df2\u8bfb',markUnread:'\u6807\u8bb0\u4e3a\u672a\u8bfb',focusBtn:'\u5173\u6ce8',undo:'\u64a4\u9500',readCount:'\u5df2\u8bfb',missingNote:'\u26a0\ufe0f \u6b64\u8bba\u6587\u8fd8\u672a\u751f\u6210\u4e2d\u6587\u6458\u8981 / \u4eae\u70b9 / \u7814\u7a76\u7ebf\u5206\u7c7b'},
+en:{loading:'Loading...',unread:'unread',total:'total',read:'Read',focus:'Focus',all:'All',noPapers:'No papers',noRead:'No read papers yet',markRead:'Mark read',markUnread:'Mark unread',focusBtn:'Focus',undo:'Undo',readCount:'read',missingNote:'\u26a0\ufe0f Summary / highlight / research line not yet generated for this paper'}
+};
+let D=[],cf='all',undoStack=[],L=localStorage.getItem('dp_lang')||'zh';
+function t(k){return I18N[L][k];}
+function applyLang(){
+document.documentElement.lang=L;
+document.getElementById('lang-btn').textContent=L==='zh'?'EN':'\u4e2d';
+document.querySelector('.fb[data-f="all"]').textContent=t('all');
+document.querySelectorAll('.fb-label').forEach(el=>{el.textContent=t(el.dataset.k);});
+render();
+}
+function toggleLang(){L=(L==='zh')?'en':'zh';localStorage.setItem('dp_lang',L);applyLang();}
+async function load(){const r=await fetch('/api/papers');D=await r.json();applyLang();}
 function render(){
 let p=D;
 if(cf==='all')p=p.filter(x=>!x.read);
 else if(cf==='read')p=p.filter(x=>x.read);
 else if(cf==='focus')p=p.filter(x=>x.focus);
 else p=p.filter(x=>x.research_line===cf&&!x.read);
-const total=D.filter(x=>!x.read).length;
 const readCount=D.filter(x=>x.read).length;
-document.getElementById('st').textContent=cf==='read'?readCount+' read':p.length+' unread / '+D.length+' total';
-if(!p.length){document.getElementById('pl').innerHTML='<div class="ld">'+(cf==='read'?'No read papers yet':'No papers')+'</div>';return;}
+document.getElementById('st').textContent=cf==='read'?readCount+' '+t('readCount'):p.length+' '+t('unread')+' / '+D.length+' '+t('total');
+if(!p.length){document.getElementById('pl').innerHTML='<div class="ld">'+(cf==='read'?t('noRead'):t('noPapers'))+'</div>';return;}
 document.getElementById('pl').innerHTML=p.map(card).join('');
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function isNew(d){if(!d)return false;var t=new Date();t.setDate(t.getDate()-2);return new Date(d)>=t;}
 function card(p){
 const lc={'Body Models':'bm','HPE\\u2192Mesh':'hm','Motion-Physics':'mp'}[p.research_line]||'ot';
-const kw=p.keywords.slice(0,4).map(k=>'<span class="tg tk">'+esc(k)+'</span>').join('');
+const kw=(p.keywords||[]).slice(0,4).map(k=>'<span class="tg tk">'+esc(k)+'</span>').join('');
 const lt=p.research_line?'<span class="tg tl '+lc+'">'+esc(p.research_line)+'</span>':'';
 const nb=isNew(p.date)?'<span class="new-badge">NEW</span>':'';
 const lb=p.lab?'<span class="lab">'+esc(p.lab)+'</span>':'';
+const hasEnrichment=p.highlight||p.summary||p.research_line;
 return '<div class="pc" id="card-'+p.id+'">'+
 '<div class="ph">'+
 '<a class="pt" href="'+esc(p.arxiv_url)+'" target="_blank">'+esc(p.title)+nb+'</a>'+
 '<div class="pa">'+
 (p.read?
-'<button class="ab" onclick="markUnread(\\''+p.id+'\\',this)" title="Mark unread">&#128194;</button>':
-'<button class="ab" onclick="markRead(\\''+p.id+'\\',this)" title="Mark read">&#9989;</button>')+
-'<button class="ab '+(p.focus?'fv':'')+'" onclick="togFocus(\\''+p.id+'\\','+(!p.focus)+',this)" title="Focus">&#128269;</button>'+
+'<button class="ab" onclick="markUnread(\\''+p.id+'\\',this)" title="'+t('markUnread')+'">&#128194;</button>':
+'<button class="ab" onclick="markRead(\\''+p.id+'\\',this)" title="'+t('markRead')+'">&#9989;</button>')+
+'<button class="ab '+(p.focus?'fv':'')+'" onclick="togFocus(\\''+p.id+'\\','+(!p.focus)+',this)" title="'+t('focusBtn')+'">&#128269;</button>'+
 '</div></div>'+
 '<div class="pm">'+esc(p.authors)+(lb?' &middot; '+lb:'')+(p.date?' &middot; '+p.date:'')+'</div>'+
 '<div class="tags">'+lt+kw+'</div>'+
 (p.highlight?'<div class="hl">'+esc(p.highlight)+'</div>':'')+
 (p.summary?'<div class="ps">'+esc(p.summary)+'</div>':'')+
 (p.evolution_note?'<div class="pe">&nearr; '+esc(p.evolution_note)+'</div>':'')+
+(!hasEnrichment?'<div class="no-summary-note">'+t('missingNote')+'</div>':'')+
 '<div class="lk">'+(p.arxiv_url?'<a href="'+esc(p.arxiv_url)+'" target="_blank">arXiv</a>':'')+(p.pdf_url?'<a href="'+esc(p.pdf_url)+'" target="_blank">PDF</a>':'')+'</div>'+
 '</div>';}
 function markRead(id){
