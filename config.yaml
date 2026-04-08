@@ -3,48 +3,51 @@ arxiv:
     - cs.CV
     - cs.GR
     - cs.RO
+  # Keyword matching uses word boundaries (case-insensitive). Phrases with the
+  # word "human" or specific method/system acronyms tend to be high-precision.
+  # Generic terms like "3D reconstruction" or "Mamba" are intentionally NOT
+  # included because they collide with unrelated CV/NLP papers.
   keywords:
     # === Line 1: Body Models & Mesh Recovery ===
     - SMPL
     - SMPL-X
     - "mesh recovery"
     - "human mesh"
-    - "body model"
+    - "human body model"
+    - "parametric human"
     - "parametric body"
     - "body reconstruction"
-    - "neural body"
+    - "neural human"
     - "implicit human"
-    - "whole-body"
     - "expressive body"
-    # MHR specific systems
+    - "whole-body human"
+    # HMR-family systems
     - "SAM 3D Body"
     - HMR
     - HSMR
     - TokenHMR
     - "4DHumans"
-    # Biomechanical body
-    - SKEL
+    - "Humans in 4D"
+    # Biomechanical
     - "biomechanical body"
-    - "skeletal model"
+    - "skeletal human"
     - "de Leva"
     - "segment inertia"
-    - "body segment"
+    - "musculoskeletal body"
 
     # === Line 2: HPE / Pose / World Coordinates ===
     - "human pose"
-    - "pose estimation"
-    - "shape estimation"
+    - "human shape estimation"
     - "hand pose"
+    - "head pose"
     - WHAM
     - GVHMR
     - "world coordinate"
     - "global trajectory"
     - "camera-to-world"
     - "gravity-view"
-    - "visual odometry"
     - IPMAN
     - "center of pressure"
-    - "center of mass"
     - "ground contact"
     - "foot contact"
     - "monocular human"
@@ -60,46 +63,38 @@ arxiv:
     - "motion prior"
     - "physics-based character"
     - "physics-based humanoid"
-    - "physically plausible"
+    - "physically plausible motion"
     - "differentiable physics"
     - "contact-aware human"
     - "human-object interaction"
+    - "human-scene interaction"
     # Physics-informed pose/motion
     - PhysPT
-    - "physics loss"
-    - "analytical physics"
     - LARP
-    - "learned physics"
-    - "physics prior"
     - "muscle simulation"
-    - "musculoskeletal"
     - MuscleMimic
+    - "musculoskeletal motion"
 
-    # === Line 4: Mamba / SSM (temporal architecture) ===
-    - Mamba
-    - Mamba2
-    - "state space model"
-    - "selective state space"
+    # === Line 4: Mamba / SSM (temporal architecture for HUMAN tasks) ===
+    # Note: bare "Mamba" is too generic. We require specific variants tied
+    # to vision/temporal/graph use, plus only count if combined with another keyword.
     - PS-Mamba
     - BiMamba
     - "graph mamba"
     - "vision mamba"
     - "temporal mamba"
+    - "motion mamba"
 
-    # === Line 5: 3D Vision Foundation (camera, depth, scene) ===
+    # === Line 5: 3D Vision Foundation (camera, scene — only specific methods) ===
     - VGGT
+    - DUSt3R
     - "camera pose estimation"
     - "structure from motion"
-    - "monocular depth"
-    - "multi-view reconstruction"
-    - "3D reconstruction"
-    - DUSt3R
+    - "multi-view human"
 
     # === Specific people & systems ===
     - "Karen Liu"
     - SMPLSim
-    - "cloth simulation human"
-    - "Fast SAM"
   max_results_per_category: 200
 
 huggingface:
@@ -112,6 +107,8 @@ notion:
   database_id: ""
 
 pipeline:
-  min_keyword_score: 1
+  # Require >=2 keyword matches to filter out incidental single-token collisions
+  # (e.g. "human pose" mentioned in passing in a surgical robotics paper).
+  min_keyword_score: 2
   hf_always_include: false
   lookback_days: 2

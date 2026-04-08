@@ -1,14 +1,37 @@
 from __future__ import annotations
 import logging
+import re
 
 from daily_paper_scraper.models import Paper
 
 logger = logging.getLogger(__name__)
 
 
+_KEYWORD_RE_CACHE: dict[str, re.Pattern] = {}
+
+
+def _kw_pattern(kw: str) -> re.Pattern:
+    """Compile a keyword into a word-boundary regex (case-insensitive).
+
+    Multi-word phrases ("human pose") still match across whitespace, but a
+    single token like "SKEL" will NOT match inside "skeleton" or "skeletal".
+    """
+    cached = _KEYWORD_RE_CACHE.get(kw)
+    if cached is not None:
+        return cached
+    parts = re.split(r"\s+", kw.strip())
+    body = r"\s+".join(re.escape(p) for p in parts)
+    # \b only works around word characters; for keywords ending in punctuation
+    # (e.g. "SMPL-X") fall back to a non-word lookahead.
+    pattern = rf"(?<![A-Za-z0-9]){body}(?![A-Za-z0-9])"
+    compiled = re.compile(pattern, re.IGNORECASE)
+    _KEYWORD_RE_CACHE[kw] = compiled
+    return compiled
+
+
 def score_paper(paper: Paper, keywords: list[str]) -> Paper:
-    text = (paper.title + " " + paper.abstract).lower()
-    matched = [kw for kw in keywords if kw.lower() in text]
+    text = paper.title + " " + paper.abstract
+    matched = [kw for kw in keywords if _kw_pattern(kw).search(text)]
     paper.matched_keywords = matched
     paper.keyword_score = len(matched)
     return paper
