@@ -30,12 +30,16 @@ def fetch_arxiv_papers(
     max_results: int = 200,
     keywords: list[str] | None = None,
 ) -> list[Paper]:
-    """Daily mode: keyword search within 25-hour window. Falls back to category if no keywords."""
+    """Daily mode: keyword search within rolling 3-day window.
+
+    A single-day window misses papers in this narrow field due to arXiv's
+    submission indexing delays and low daily volume. The 3-day overlap is
+    safe because bulk_sync.py deduplicates against Notion before inserting.
+    """
     client = arxiv.Client(page_size=50, delay_seconds=5.0, num_retries=5)
     all_papers: dict[str, Paper] = {}
 
-    # 25-hour window to avoid timezone gaps
-    date_from = (target_date - timedelta(days=1)).strftime("%Y%m%d") + "2300"
+    date_from = (target_date - timedelta(days=3)).strftime("%Y%m%d") + "0000"
     date_to = target_date.strftime("%Y%m%d") + "2359"
     date_filter = f"submittedDate:[{date_from} TO {date_to}]"
 
